@@ -1,0 +1,29 @@
+.btn {
+    border-radius: 10px;
+    padding: 10px;
+    outline: none !important;
+    border: none !important;
+    cursor: pointer;
+    color: white !important;
+}
+
+.btn-primary {
+    background-color: #90C7EF;
+    font-size: calc(1vw + 7.5px);
+    font-weight: bold;
+}
+
+.btn-primary:active {
+    background-color: #7bb8e4;
+}
+
+.btn-link {
+    background-color: transparent;
+    font-size: inherit;
+    font-weight: inherit;
+    padding: 0;
+}
+
+.btn:hover {
+    text-decoration: underline;
+}

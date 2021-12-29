@@ -1,0 +1,20 @@
+.room-list {
+    .room-list-entry {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        max-width: fit-content;
+        min-width: fit-content;
+        padding: 5px;
+        border: 3px solid #000;
+        border-radius: 10px;
+        h2 {
+            padding: 10px;
+        }
+        .btn-primary {
+            font-size: 18px;
+            padding: 0.5rem;
+            margin-right: 1rem;
+        }
+    }
+}

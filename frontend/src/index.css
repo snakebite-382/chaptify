@@ -5,4 +5,15 @@
     font-family: droid-sans, sans-serif;
     font-weight: 400;
     font-style: normal;
+    overflow-x: hidden;
+}
+
+.App {
+    width: 100vw;
+    height: 100vh;
+}
+
+.page {
+    margin-top: 7.5rem;
+    overflow-x: hidden;
 }

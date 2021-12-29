@@ -1,21 +1,11 @@
 import { Component } from 'react';
 import NavItem from './Nav-item';
-import logo from '../img/logo.png';
-import '../css/nav.css';
+import LoginOrOutLink from '../AuthComponents/Login-or-out-link';
+import logo from '../../img/logo.png';
+import '../../css/nav.scss';
 
 class Navbar extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            activeLinkID: 0
-        };
-    }
-
     render () {
-        let itemClick = (ID) => {
-            this.setState({activeLinkID: ID});
-        }
-
         return (
             <div className="nav">
                 <div className="nav-inner">
@@ -26,8 +16,10 @@ class Navbar extends Component {
                     </div>
                     <div className="nav-right">
                         <ul className="nav-list">
-                            <NavItem path="/" page="Home" ID={0} activeID={this.state.activeLinkID} onClick={itemClick}/>
-                            <NavItem path="/signup" page="Signup" ID={1} activeID={this.state.activeLinkID} onClick={itemClick}/>
+                            <NavItem path="/" page="Home"/>
+                            <li className="nav-item">
+                                <span className="nav-link"><LoginOrOutLink /></span>
+                            </li>
                         </ul>
                     </div>
                 </div>

@@ -1,0 +1,79 @@
+.sidebar {
+    border: 5px solid black;
+    border-radius: 15px;
+    width: fit-content;
+    max-width: 23rem;
+    min-width: 18rem;
+    white-space: nowrap;
+    height: fit-content;
+    max-height: 51.5rem;
+    padding: 1rem;
+    margin-left: 2rem;
+    margin-top: 1.5rem;
+    position: fixed;
+    overflow-y: auto;
+    // height: 51.5rem; // !TESTING FOR NO CONTENT
+    * {
+        text-overflow: ellipsis;
+    }
+    .break-line {
+        width: auto;
+        height: 2px;
+        background-color: #000;
+        opacity: 50%;
+        margin: 0.75rem 0.5rem;
+        border-radius: 500px;
+    }
+    .users {
+        .lists {
+            margin-left: 0.75rem;
+            .online-container,
+            .offline-container {
+                span {
+                    display: flex;
+                    align-items: center;
+                }
+                h3 {
+                    text-align: center;
+                }
+                .list {
+                    padding-left: 0.75rem;
+                }
+                .list.open {
+                    display: block;
+                }
+                .list.closed {
+                    display: none;
+                }
+                .circle {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 100px;
+                    margin-left: 5px;
+                }
+            }
+            .online-container {
+                .circle {
+                    background-color: #88FFA9;
+                }
+            }
+            .offline-container {
+                .circle {
+                    background-color: #FF7676;
+                }
+            }
+        }
+    }
+    .channels {
+        .list {
+            margin-left: 0.75rem;
+            .channel {
+                img {
+                    margin-left: 0.25rem;
+                    width: auto;
+                    height: 14px;
+                }
+            }
+        }
+    }
+}
