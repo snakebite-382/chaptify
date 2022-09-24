@@ -34,9 +34,9 @@
             overflow: hidden;
         }
         .send {
-            position: relative;
-            top: 0.6rem;
-            right: 3.5rem;
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
             cursor: default !important;
             background-color: transparent;
             img {
@@ -48,12 +48,14 @@
             }
         }
         .message-input {
-            padding: 20px;
+            padding: 1rem;
+            padding-right: 3.5rem;
             font-size: 1.15rem;
-            height: 3rem;
+            height: 4rem;
             width: 45vw;
             border: 4px solid black;
             border-radius: 100px;
+            resize: none;
         }
     }
     .messages {
@@ -80,7 +82,8 @@
                 border-radius: 10px;
                 min-width: fit-content;
                 width: auto;
-                overflow: visible;
+                max-width: 25vw;
+                overflow-wrap: anywhere;
             }
         }
         .myMsg {

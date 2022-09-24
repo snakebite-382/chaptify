@@ -1,3 +1,4 @@
+// ## IMPORTS ## //
 const express = require("express");
 const path = require("path");
 const cors = require('cors');
@@ -8,6 +9,8 @@ const socketio = require('socket.io');
 const dotenv = require("dotenv");
 dotenv.config();
 
+
+// ## SETUP APP ## //
 const clientOrigins = ["http://localhost:3000", "http://localhost:5000", "http://127.0.0.1:3000", "http://127.0.0.1:5000"];
 
 // create our app and get our port

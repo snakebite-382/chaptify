@@ -1,7 +1,8 @@
 import {React, Component} from 'react';
 import { Formik, Field, Form} from 'formik';
 import { withAuth0 } from '@auth0/auth0-react';
-import Messages from './Messages'
+import TextAreaAutoResize from 'react-textarea-autosize';
+import Messages from './Messages';
 import SendIcon from '../../../../img/icons/send.svg';
 import "../../../../css/Chat/chat-area.scss";
 
@@ -61,7 +62,10 @@ class ChatArea extends Component {
                             }}
                         >
                             <Form>
-                                <Field autoComplete="off" type="text" id="message" name="message" className="message-input" placeholder={["Your Message Goes Here...", "Type Your Message Here...", "Message...", "Type Here..."][Math.floor((Math.random() * 3))]}/>
+                                <Field autoComplete="off" type="text" id="message"
+                                component={TextAreaAutoResize}
+                                name="message" className="message-input" placeholder={["Your Message Goes Here...", "Type Your Message Here...", "Message...", "Type Here..."][Math.floor((Math.random() * 3))]}/>
+
                                 <button type='submit' className="send btn"><div className="hover-area"></div><img src={SendIcon} alt=""/> </button>
                             </Form>
                         </Formik>
