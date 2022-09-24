@@ -5,12 +5,15 @@ import Loading from '../components/Loading';
 import Navbar from '../components/Chat/RoomComponents/NavComponents/Navbar';
 import Sidebar from '../components/Chat/RoomComponents/SidebarComponents/Sidebar';
 import ChatArea from '../components/Chat/RoomComponents/ChatAreaComponents/ChatArea';
+import SettingsContainer from '../components/Chat/SettingsComponents/SettingsContainer';
 
 class Room extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            username: "",
             isLoading: true,
+            currentView: 'Chat',
             chatArea: {
                 loading: false,
                 channelName: '',
@@ -28,6 +31,7 @@ class Room extends Component {
         this.roomID = params.get('roomID'); // using the this keyward allows the roomID, user object, and io object (most importantly), to be able to be reused throughout the component for things like sending messages and other events outside of componentDidMount
         let { user } = this.props.auth0;
         this.user = user;
+        this.setState({username: user.name})
 
 
         //! TESTING, LOGS RECIEVED EVENTS
@@ -35,7 +39,7 @@ class Room extends Component {
             if(args.length === 0) {
                 args = "NONE";
             }
-            console.log(`Recieved event: ${event} \nwith args: ${args}`);
+            //console.log(`Recieved event: ${event} \nwith args: ${args}`);
         });
 
 
@@ -46,22 +50,30 @@ class Room extends Component {
         })
 
         this.io.on("JOIN SUCCESS", data => {
-            console.log(data);
+            //console.log(data);
             this.roomData = data;
             this.renderChannel("general")
             this.setState({isLoading: false});
         })
 
         this.io.on("JOIN CHANNEL SUCCESS", data => {
-            console.log(data)
+            console.table(data.messages)
             window.history.replaceState(null, null, `#${data.name}`);
 
             let newState = this.state.chatArea;
             newState.loading = false;
-            newState.renderChannel = data.name;
+            newState.channelName = data.name;
             newState.messages = data.messages;
             this.setState({chatArea: newState})
         })
+    }
+
+    recvMessage = message => {
+        console.log(message)
+        let newState = this.state.chatArea;
+        newState.messages.push(message);
+        this.setState({chatArea: newState})
+        this.setState()
     }
 
     renderChannel = (channelName) => {
@@ -75,18 +87,36 @@ class Room extends Component {
         // this creates the request which will be handled by an event listener created in componentDidMount
     }
 
+    toggleView = () => {
+        if(this.state.currentView === "Chat") {
+            this.setState({currentView: "Settings"});
+        } else {
+            this.setState({currentView: "Chat"});
+        }
+    }
+
     render () {
         if(this.state.isLoading) {
             return <Loading/>
         }
 
-        return (
+        if(this.state.currentView === "Chat") {
+            return ( //chat view
+                <>
+                <Navbar roomName={this.roomData.roomName} username={this.user.name} settingsToggle={this.toggleView}/>
+                <Sidebar users={this.roomData.users} channels={this.roomData.channels}/>
+                <ChatArea roomState={this.state.chatArea} io={this.io} recvMessage={this.recvMessage} username={this.state.username}/>
+                </>
+            )
+        }
+
+        return ( //settings view
             <>
-            <Navbar roomName={this.roomData.roomName} username={this.user.name}/>
-            <Sidebar users={this.roomData.users} channels={this.roomData.channels}/>
-            <ChatArea roomState={this.state.chatArea}/>
+            <Navbar roomName={this.roomData.roomName} username={this.user.name} settingsToggle={this.toggleView}/>
+            <SettingsContainer/>
             </>
         )
+
     }
 }
 

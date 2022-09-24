@@ -1,0 +1,20 @@
+.settingsView {
+    .tabs {
+        display: flex;
+        align-items: center;
+        padding-right: 33vw;
+        padding-left: 33vw;
+        .selection {
+            font-size: 30px;
+        }
+        .selected {
+            text-decoration: underline;
+        }
+        .selectUserSettings {
+            margin-right: auto;
+        }
+        .selectRoomSettings {
+            margin-left: auto;
+        }
+    }
+}

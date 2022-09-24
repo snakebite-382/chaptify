@@ -43,7 +43,7 @@ App.use(bodyParser.urlencoded({ extended: true }));
 // ## DATABASE ## //
 mongoose.connect(process.env.MONGODB_CONNECT_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to database'))
-    .catch(() => console.error('Failed to connect to database'));
+    .catch((e) => console.error('Failed to connect to database: ' + e));
 
 // ## IMPORTS ## //
 // get a path to frontend static files
@@ -71,8 +71,13 @@ let cachedRooms = []; // a list of rooms cached because more information is need
 const Room = require('./schemas/RoomSchema');
 const { getUserName } = require('./apis/Users/Users.service');
 
+const Store = require('./objects/socket/store');
+const { channel } = require("diagnostics_channel");
+
+let activeRooms = [];
+
 io.on("connection", (socket) => {
-    io.to(socket.id).emit('GET USER INFO')
+    io.to(socket.id).emit("GET USER INFO", socket.id)
 
     socket.on("RETURN USER INFO", async data => {
         // we need to unpack the data
@@ -110,7 +115,29 @@ io.on("connection", (socket) => {
             await roomData.save();
             // have them join the socket room
             socket.join(room);
-            socket.user = user;
+
+            let store = new Store(socket.id, user, null, data.room);
+
+            let foundActiveRoom = false;
+
+            activeRooms.forEach(activeRoom => {
+                if (activeRoom.id == data.room) {
+                    activeRoom.userStores.push(store);
+                    activeRoom.userCount++;
+                    foundActiveRoom = true;
+                }
+            })
+
+            if (!foundActiveRoom) {
+                let newActiveRoom = {
+                    userStores: [],
+                    id: data.room,
+                    userCount: 1
+                }
+                newActiveRoom.userStores.push(store);
+                activeRooms.push(newActiveRoom);
+            }
+
             io.to(socket.id).emit("JOIN SUCCESS", { roomName: roomData.roomName, users: roomData.userList, channels: roomData.channels }); // this is where we send info needed to load the page
         }
 
@@ -149,9 +176,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on('JOIN CHANNEL', async data => {
-        console.log(data)
-
-
         // get room data
         let room = Array.from(socket.rooms)[1];
 
@@ -179,7 +203,6 @@ io.on("connection", (socket) => {
                 }
             })
 
-            console.log(userData)
 
             //get channel data
 
@@ -189,7 +212,6 @@ io.on("connection", (socket) => {
                 }
             })
 
-            console.log(channel);
 
             allowed = (channel.allowedRoles.indexOf("*") > -1 || channel.allowedUsers.indexOf("*") > -1) ? true : false;
 
@@ -210,7 +232,23 @@ io.on("connection", (socket) => {
         if (roomData === null || channel === null || !allowed) {
             io.to(socket.id).emit("ERROR", "Channel Join Failed")
         } else {
-            socket.channel = channel;
+
+
+            let activeRoom
+
+            activeRooms.forEach(getRoom => {
+                if (getRoom.id == room) {
+                    activeRoom = getRoom
+                }
+            })
+
+            if (activeRoom) {
+                activeRoom.userStores.forEach(store => {
+                    if (store.storage.id == socket.id) {
+                        store.storage.channel = channel;
+                    }
+                })
+            } else return null
 
             let resData = {};
 
@@ -225,7 +263,92 @@ io.on("connection", (socket) => {
             io.to(socket.id).emit("JOIN CHANNEL SUCCESS", resData)
         }
     })
+
+    socket.on("SEND MESSAGE", async data => {
+        // we already know the channel they're authed for because it's stored on the socket variable server side
+        // because we know where they can speak currently we can check the two against eachother and if they mismatch send an error back
+        let storeRef;
+        let activeRoom;
+
+        for (let i = 0; i < activeRooms.length; i++) {
+            if (Array.from(socket.rooms)[1] = activeRooms[i].id) {
+                activeRoom = activeRooms[i];
+                break;
+            }
+        }
+
+        for (let i = 0; i < activeRoom.userStores.length; i++) {
+            let store = activeRoom.userStores[i];
+            if (store.get("id").toString().trim() == socket.id.toString().trim()) {
+                storeRef = store;
+                break;
+            }
+        }
+        let channel = storeRef.get("channel")
+
+        if (!(data.channel != channel)) {
+            io.to(socket.id).emit("ERROR: CHANNEL MISSMATCH", { status: 501, message: `The channel authenticated on the server side doesn't match the requested channel, failed to send message ${data.message} to channel ${data.channel}` })
+        }
+
+        // next up is the fun part find the channel and update it
+        let room = Array.from(socket.rooms)[1];
+        let roomData = await Room.findById(room).exec();
+
+        //reassign channel to be a reference to the actual channel data
+
+        for (i = 0; i < roomData.channels.length; i++) {
+            if (roomData.channels[i].name == channel.name) {
+                channel = roomData.channels[i];
+                break;
+            }
+        }
+
+        let newMessage = {
+            sender: storeRef.storage.user.name,
+            message: data.message
+        }
+
+        channel.messages.push(newMessage);
+
+        await Room.updateOne({ _id: roomData._id }, { channels: roomData.channels });
+
+        let sendClients = []
+
+        activeRoom.userStores.forEach(userStore => {
+            if (userStore.storage.channel.name == channel.name) {
+                sendClients.push(userStore.storage.id);
+            }
+        })
+
+
+        sendClients.forEach(client => {
+            io.to(client).emit("NEW MESSAGE", { message: newMessage })
+        })
+
+    })
+
+    socket.on("disconnecting", () => {
+        //find the active room
+
+        let activeRoom;
+
+        activeRooms.forEach(room => {
+            if (room.id == Array.from(socket.rooms)[1]) {
+                activeRoom = room;
+            }
+        })
+
+        activeRoom.userCount -= 1;
+
+        if (activeRoom.userCount < 1) {
+            console.log("delete")
+            activeRooms = activeRooms.filter((el) => {
+                return el.id != activeRoom.id
+            })
+        }
+    })
 })
+
 
 // ## HANDLE 404 ## //
 // then any requests not caught by the API or the frontend files is a 404 however 404s are handled by react router so we send the index.html page which will then handle the 404 with react router
