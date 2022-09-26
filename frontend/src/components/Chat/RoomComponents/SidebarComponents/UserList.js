@@ -30,9 +30,9 @@ class UserList extends Component {
                         <span onClick={this.toggleOnline}><h3>Online</h3> <div className="circle"></div><img className="dropdown-toggle" src={!this.state.onlineExpanded ? ChevronRight : ChevronDown} alt="online dropdown toggle"/></span>
                         <ul className={"list " + (this.state.onlineExpanded ? "open": "closed")}>
                             {
-                                this.props.users.map(user => {
+                                this.props.users.map((user, index) => {
                                     if(user.online) {
-                                        return(<li key={"online-" + user.username}>{user.username}</li>)
+                                        return(<li key={"online"+index.toString()}>{user.username}</li>)
                                     } else return (<></>)
                                 })
                             }
@@ -42,9 +42,9 @@ class UserList extends Component {
                         <span onClick={this.toggleOffline}><h3>Offline</h3> <div className="circle"></div> <img src={!this.state.offlineExpanded ? ChevronRight : ChevronDown} alt="" className="dropdown-toggle" /></span>
                         <ul className={"list " + (this.state.offlineExpanded ? "open" : "closed")}>
                         {
-                                this.props.users.map(user => {
+                                this.props.users.map((user, index) => {
                                     if(!user.online) {
-                                        return(<li key={"offline-" + user.username}>{user.username}</li>)
+                                        return(<li key={"offline"+index.toString()}>{user.username}</li>)
                                     } else return (<></>)
                                 })
                             }

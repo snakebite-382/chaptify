@@ -57,7 +57,6 @@ class Room extends Component {
         })
 
         this.io.on("JOIN CHANNEL SUCCESS", data => {
-            console.table(data.messages)
             window.history.replaceState(null, null, `#${data.name}`);
 
             let newState = this.state.chatArea;
@@ -69,7 +68,6 @@ class Room extends Component {
     }
 
     recvMessage = message => {
-        console.log(message)
         let newState = this.state.chatArea;
         newState.messages.push(message);
         this.setState({chatArea: newState})

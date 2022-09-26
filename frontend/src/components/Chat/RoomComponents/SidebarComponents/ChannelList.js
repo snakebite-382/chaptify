@@ -8,7 +8,7 @@ class ChannelList extends Component {
             <div className="channels">
                 <h2>Channels</h2>
                 <ul className="list">
-                    {this.props.channels.map(channel => {
+                    {this.props.channels.map((channel, index) => {
                         let allowed = false;
                         if(channel.allowedRoles.indexOf("*") === -1 && channel.allowedUsers.indexOf("*") === -1) { // some users aren't allowed
                             let {user} = this.props.auth0;
@@ -28,7 +28,7 @@ class ChannelList extends Component {
                             allowed = true;
                         }
 
-                        return(<li className={`channel ${allowed ? 'allowed' : 'blocked'}`} key={channel.name}><h3>#{channel.name}<img src={Lock} alt=""/></h3></li>)
+                        return(<li className={`channel ${allowed ? 'allowed' : 'blocked'}`} key={index}><h3>#{channel.name}<img src={Lock} alt=""/></h3></li>)
                     })}
                 </ul>
             </div>

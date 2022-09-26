@@ -340,14 +340,16 @@ io.on("connection", (socket) => {
                 activeRoom = room;
             }
         })
+        try {
+            activeRoom.userCount -= 1;
 
-        activeRoom.userCount -= 1;
-
-        if (activeRoom.userCount < 1) {
-            console.log("delete")
-            activeRooms = activeRooms.filter((el) => {
-                return el.id != activeRoom.id
-            })
+            if (activeRoom.userCount < 1) {
+                activeRooms = activeRooms.filter((el) => {
+                    return el.id != activeRoom.id
+                })
+            }
+        } catch (e) {
+            console.log(e)
         }
     })
 })
